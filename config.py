@@ -1,39 +1,73 @@
+import os
 import configparser
-from time import strftime
- 
-#--------------------------------------------------------------------------------------
-def config_Write():
-    # 설정파일 만들기
-    config = configparser.ConfigParser()
- 
-    # 오브젝트 system
-    config["key"] = {}
-    config["key"]['apikey'] = "YOUR_NEIS_API_KEY"
- 
-    # 설정파일 저장
-    with open('config.ini', 'w', encoding='utf-8') as configfile:
-        config.write(configfile)
-        
-    print("edit config.ini")
-    exit()
- 
-#--------------------------------------------------------------------------------------
-def config_read():
-    
-    try:
-        # 설정파일 읽기
-        config = configparser.ConfigParser()    
-        config.read('config.ini', encoding='utf-8') 
 
-        # 설정파일의 색션 확인
-        apikey = config["key"]['apikey']
-        return apikey
-    except:
-        config_Write()
+class config:
+	"""
+	config.ini object
 
- 
-#--------------------------------------------------------------------------------------
+	config -- list with ini data
+	default -- if true, we have generated a default config.ini
+	"""
 
-if __name__ == '__main__':
+	config = configparser.ConfigParser()
+	extra = {}
+	fileName = ""		# config filename
+	default = True
 
-  config_read()
+	# Check if config.ini exists and load/generate it
+	def __init__(self, __file):
+		"""
+		Initialize a config object
+
+		__file -- filename
+		"""
+
+		self.fileName = __file
+		if os.path.isfile(self.fileName):
+			# config.ini found, load it
+			self.config.read(self.fileName)
+			self.default = False
+		else:
+			# config.ini not found, generate a default one
+			self.generateDefaultConfig()
+			self.default = True
+
+	# Check if config.ini has all needed the keys
+	def checkConfig(self):
+		"""
+		Check if this config has the required keys
+
+		return -- True if valid, False if not
+		"""
+
+		try:
+			# Try to get all the required keys
+			self.config.get("server","host")
+			self.config.get("server","port")
+			self.config.get("server","debug")
+
+			self.config.get("api","APIKEY")
+			return True
+		except:
+			return False
+
+
+	# Generate a default config.ini
+	def generateDefaultConfig(self):
+		"""Open and set default keys for that config file"""
+
+		# Open config.ini in write mode
+		f = open(self.fileName, "w")
+
+		# Set keys to config object
+		self.config.add_section("server")
+		self.config.set("server", "host", "0.0.0.0")
+		self.config.set("server", "port", "1337")
+		self.config.set("server", "debug", "False")
+
+		self.config.add_section("api")
+		self.config.set("api", "APIKEY", "Your_neis_APIKEY")
+
+		# Write ini to file and close
+		self.config.write(f)
+		f.close()
