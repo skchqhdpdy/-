@@ -47,6 +47,8 @@ class config:
 			self.config.get("server","debug")
 
 			self.config.get("api","APIKEY")
+			
+			self.config.get("discord", "token")
 			return True
 		except:
 			return False
@@ -67,6 +69,9 @@ class config:
 
 		self.config.add_section("api")
 		self.config.set("api", "APIKEY", "Your_neis_APIKEY")
+		
+		self.config.add_section("discord")
+		self.config.set("discord", "token", "Your_discord_token")
 
 		# Write ini to file and close
 		self.config.write(f)

@@ -4,6 +4,7 @@ import requests
 import time
 import json
 import sys
+import dico
 
 #This file is responsible for running the web server and (mostly nothing else)
 from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, jsonify
@@ -77,6 +78,7 @@ app.secret_key = os.urandom(24) #encrypts the session cookie
 def home():
     #inputDate = input("오늘 기준 으로 +, - 입력 : ")
     dateNow = time.strftime('%Y%m%d', time.localtime(time.time()))
+    dateNow = "20230908"
     date = request.args.get('date')
     if date is None or date == "":
         #date = dateNow
