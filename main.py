@@ -1,8 +1,9 @@
 from lets_common_log import logUtils as log
-from config import *
+import config
 import requests
 import time
 import json
+import sys
 
 #This file is responsible for running the web server and (mostly nothing else)
 from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, jsonify
@@ -11,11 +12,18 @@ import os
 from threading import Thread
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-log.error(dir(config_read))
-print(config_read)
+
+conf = config.config("config.ini")
+if not conf.checkConfig():
+    conf.generateDefaultConfig()
+    sys.exit("config.ini 재설정")
+
+HOST = conf.config["server"]["host"]
+PORT = conf.config["server"]["port"]
+DEBUG = True if conf.config["server"]["debug"] == "True" else False
+apikey = conf.config["api"]["apikey"]
+
 def get_menu(date):
-    
-    apikey = "Your_API_Key"
 
     """ try:
         date = int(date) + int(inputDate)
@@ -78,4 +86,4 @@ def home():
     return render_template("test.html", title="오늘의 급식", txt=menu)
 
 if __name__ == "__main__":
-    app.run(host= '0.0.0.0', port="1337", threaded= False)
+    app.run(host=HOST, port=PORT, debug=DEBUG)
