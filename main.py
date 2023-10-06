@@ -91,7 +91,7 @@ def home():
     if request.headers.get("User-Agent") == "meal discord":
         return jsonify(menu)
     else:
-        return render_template("test.html", title="오늘의 급식", txt=menu)
+        return render_template("main.html", title="오늘의 급식", txt=menu)
 
 if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=DEBUG)
