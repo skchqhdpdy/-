@@ -24,6 +24,26 @@ PORT = conf.config["server"]["port"]
 DEBUG = True if conf.config["server"]["debug"] == "True" else False
 apikey = conf.config["api"]["apikey"]
 
+def regex(menu):
+    #필터링 ?
+    menu += "<br/>"
+    log.debug(menu) 
+    
+    arr = []
+    txt = ""
+    for i in menu:
+        #if i != " ":
+        #log.error(i != " " or i != "<" or i != "b" or i != "r" or i != "/" or i != ">")
+        if i == "<" or i == "b" or i == "r" or i == "/" or i == ">":
+            if i == ">":
+                arr.append(txt)
+                txt = ""
+        #elif i == "(" or i == "." or i == ")" or i.isdigit():
+        #    txt += i
+        else:
+            txt += i
+    return arr
+
 def get_menu(date):
 
     """ try:
@@ -38,30 +58,13 @@ def get_menu(date):
     try:
         response = requests.get(url)
         result = response.json()
-        menu = result["mealServiceDietInfo"][1]["row"][0]["DDISH_NM"]
-        #필터링 ?
-        menu += "<br/>"
-        log.debug(menu)
-
-        arr = []
-        txt = ""
-        for i in menu:
-            #if i != " ":
-            #log.error(i != " " or i != "<" or i != "b" or i != "r" or i != "/" or i != ">")
-            if i == "<" or i == "b" or i == "r" or i == "/" or i == ">":
-                if i == ">":
-                    arr.append(txt)
-                    txt = ""
-            #elif i == "(" or i == "." or i == ")" or i.isdigit():
-            #    txt += i
-            else:
-                txt += i
+        menu = result["mealServiceDietInfo"][1]["row"][0]["DDISH_NM"]       
         
         """ for i in range(len(arr) // 2):
             arr.remove("") """
                 
-        log.debug(arr)
-        menu = arr
+        menu = regex(menu)
+        log.debug(menu)
     except:
         #menu = result["RESULT"]["CODE"] + " (" + result["RESULT"]["MESSAGE"] + ")"
         menu = result
@@ -78,14 +81,17 @@ app.secret_key = os.urandom(24) #encrypts the session cookie
 def home():
     #inputDate = input("오늘 기준 으로 +, - 입력 : ")
     dateNow = time.strftime('%Y%m%d', time.localtime(time.time()))
-    dateNow = "20230908"
+    #dateNow = "20230908"
     date = request.args.get('date')
     if date is None or date == "":
         #date = dateNow
         log.info(f"date Default set {dateNow} & Redirect")
         return redirect(url_for("home", date=dateNow))
     menu = get_menu(date)
-    return render_template("test.html", title="오늘의 급식", txt=menu)
+    if request.headers.get("User-Agent") == "meal discord":
+        return jsonify(menu)
+    else:
+        return render_template("test.html", title="오늘의 급식", txt=menu)
 
 if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=DEBUG)
