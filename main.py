@@ -4,7 +4,7 @@ import requests
 import time
 import json
 import sys
-import dico
+#import dico
 
 #This file is responsible for running the web server and (mostly nothing else)
 from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, jsonify

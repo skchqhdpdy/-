@@ -4,7 +4,7 @@ import config
 import sys
 import requests
 from lets_common_log import logUtils as log
-import last_meal_info
+from last_meal_info import last_meal
 
 conf = config.config("config.ini")
 if not conf.checkConfig():
@@ -23,7 +23,7 @@ async def on_ready():
     print(f'Logged in as {bot.user.name}')
 
 # !hello 명령어에 대한 이벤트 핸들러
-@bot.command()
+@bot.command(aliases=["핑"])
 async def ping(ctx):
     await ctx.send('pong!')
 
@@ -39,15 +39,15 @@ async def meal(ctx):
         for i in r:
             msg += i + "\n"
     elif type(r) == dict:
-        last_meal_info = last_meal_info.last_meal()
+        LMI = last_meal()
         msg = \
             str(r) +\
             "\n\n\n" +\
             "제작자의 말 : `'CODE': 'INFO-200'` 이면, 나이스 API에서 성포고 급식이 누락됨" +\
             "\n\n\n" +\
             "**마지막 급식 정보**\n" + \
-            f"급식일:{last_meal_info['last_date']} | 업데이트일:{last_meal_info['last_update']}\n" + \
-            last_meal_info["last_meal"]
+            f"급식일:{LMI['last_date']} | 업데이트일:{LMI['last_update']}\n" + \
+            f"{LMI['last_meal']}"
 
     embed = discord.Embed(title='오늘의 급식', description=msg, url=f'http://localhost:{PORT}/', color=discord.Color.random())
     embed.set_thumbnail(url=bot.user.avatar_url)
