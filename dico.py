@@ -50,11 +50,15 @@ async def meal(ctx):
             f"{LMI['last_meal']}"
 
     embed = discord.Embed(title='오늘의 급식', description=msg, url=f'http://localhost:{PORT}/', color=discord.Color.random())
-    embed.set_thumbnail(url=bot.user.avatar_url)
     embed.set_author(name=bot.user.name, url="https://discord.com/users/753682115505160393", icon_url=bot.user.avatar_url)
+    embed.set_thumbnail(url=bot.user.avatar_url)
+    # 사용자 정보를 가져옴
+    user = await bot.fetch_user("399535550832443392")
+    # 사용자의 아이콘 URL을 가져옴
+    makers_icon_url = user.avatar_url
+    embed.set_footer(text="Made by aodd.xyz", icon_url=makers_icon_url)
     # Timestamp 설정 (현재 시간 사용)
     embed.timestamp = ctx.message.created_at
-    embed.set_footer(text="Made by aodd.xyz", icon_url="https://collabo.lol/img/setFooter.webp")
     await ctx.send(embed=embed)
 
 # 봇 실행
