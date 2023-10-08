@@ -24,7 +24,7 @@ PORT = conf.config["server"]["port"]
 DEBUG = True if conf.config["server"]["debug"] == "True" else False
 apikey = conf.config["api"]["apikey"]
 
-def regex(menu):
+""" def regex_old(menu):
     #필터링 ?
     menu += "<br/>"
     log.debug(menu) 
@@ -42,7 +42,21 @@ def regex(menu):
         #    txt += i
         else:
             txt += i
-    return arr
+    return arr """
+
+def regex(menu):
+    regexedMenu = []
+    while True:
+        if menu.find("<br/>") == -1 and menu == "":
+            return regexedMenu
+        else:
+            num = menu.find("<br/>")
+            if num != -1:
+                regexedMenu.append(menu[:num])
+                menu = menu[num + 5:]
+            else:
+                regexedMenu.append(menu)
+                menu = ""
 
 def get_menu(date):
 
@@ -54,24 +68,25 @@ def get_menu(date):
 
     log.info(f"date = {date}")
 
+    header = {
+        "User-Agent": "python requests | https://github.com/skchqhdpdy/seongpo-highschool-meal/blob/main/main.py",
+    }
+
     url = f"https://open.neis.go.kr/hub/mealServiceDietInfo?key={apikey}&type=json&pIndex=1&pSize=1&ATPT_OFCDC_SC_CODE=J10&SD_SCHUL_CODE=7530765&MLSV_FROM_YMD={date}"
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=header)
         result = response.json()
-        menu = result["mealServiceDietInfo"][1]["row"][0]["DDISH_NM"]       
-        
-        """ for i in range(len(arr) // 2):
-            arr.remove("") """
-                
+        meal_date = result["mealServiceDietInfo"][1]["row"][0]["MLSV_YMD"]
+        menu = result["mealServiceDietInfo"][1]["row"][0]["DDISH_NM"]
         menu = regex(menu)
         log.debug(menu)
     except:
-        #menu = result["RESULT"]["CODE"] + " (" + result["RESULT"]["MESSAGE"] + ")"
+        meal_date = ""
         menu = result
         log.debug(url)
         log.debug(result)
     
-    return menu
+    return {"date": meal_date, "menu": menu}
 
 
 app = Flask(__name__)
@@ -81,7 +96,6 @@ app.secret_key = os.urandom(24) #encrypts the session cookie
 def home():
     #inputDate = input("오늘 기준 으로 +, - 입력 : ")
     dateNow = time.strftime('%Y%m%d', time.localtime(time.time()))
-    #dateNow = "20230908"
     date = request.args.get('date')
     if date is None or date == "":
         #date = dateNow
