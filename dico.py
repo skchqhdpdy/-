@@ -5,6 +5,7 @@ import sys
 import requests
 from lets_common_log import logUtils as log
 from last_meal_info import last_meal
+from datetime import datetime
 
 conf = config.config("config.ini")
 if not conf.checkConfig():
@@ -13,6 +14,9 @@ if not conf.checkConfig():
 HOST = conf.config["server"]["host"]
 PORT = conf.config["server"]["port"]
 discord_token = conf.config["discord"]["token"]
+
+def fulldateToUnix(fulldate):
+    return int(datetime.strptime(fulldate, "%Y%m%d").timestamp())
 
 # 봇 객체 생성
 bot = commands.Bot(command_prefix='!')  # 봇의 명령 접두사를 설정합니다.
@@ -34,11 +38,12 @@ async def meal(ctx):
 
     log.info(f"r = {r}")
 
-    if type(r) == list:
-        msg = ""
-        for i in r:
+    if r["date"] != "":
+        
+        msg = f"<t:{fulldateToUnix(r['date'])}:R> \n"
+        for i in r["menu"]:
             msg += i + "\n"
-    elif type(r) == dict:
+    elif r["date"] == "":
         LMI = last_meal()
         msg = \
             str(r) +\
@@ -46,7 +51,7 @@ async def meal(ctx):
             "제작자의 말 : `'CODE': 'INFO-200'` 이면, 나이스 API에서 성포고 급식이 누락됨" +\
             "\n\n\n" +\
             "**마지막 급식 정보**\n" + \
-            f"급식일:{LMI['last_date']} | 업데이트일:{LMI['last_update']}\n" + \
+            f"급식일:<t:{fulldateToUnix(LMI['last_date'])}:R> | 업데이트일:<t:{fulldateToUnix(LMI['last_update'])}:R> \n" + \
             f"{LMI['last_meal']}"
 
     embed = discord.Embed(title='오늘의 급식', description=msg, url=f'http://localhost:{PORT}/', color=discord.Color.random())
