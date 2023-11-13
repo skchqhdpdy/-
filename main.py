@@ -7,7 +7,7 @@ import sys
 #import dico
 
 #This file is responsible for running the web server and (mostly nothing else)
-from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, jsonify
+from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, jsonify, Response
 from colorama import Fore, init
 import os
 from threading import Thread
@@ -96,16 +96,29 @@ app.secret_key = os.urandom(24) #encrypts the session cookie
 def home():
     #inputDate = input("오늘 기준 으로 +, - 입력 : ")
     dateNow = time.strftime('%Y%m%d', time.localtime(time.time()))
+
     date = request.args.get('date')
+    isjson = request.args.get('isjson')
     if date is None or date == "":
         #date = dateNow
         log.info(f"date Default set {dateNow} & Redirect")
-        return redirect(url_for("home", date=dateNow))
+        return redirect(url_for("home", date=dateNow, isjson=isjson))
+
+    if isjson is None or isjson == "":
+        return redirect(url_for("home", date=date, isjson=0))
+    elif isjson == "1" or isjson == 1:
+        isjson = 1
+    else:
+        isjson = 0
+
     menu = get_menu(date)
+
     if request.headers.get("User-Agent") == "meal discord":
         return jsonify(menu)
+    elif isjson == 1:
+        return Response(json.dumps(menu, indent=2, ensure_ascii=False), content_type='application/json')
     else:
-        return render_template("main.html", title="오늘의 급식", txt=menu)
+        return render_template("main.html", title="오늘의 급식", txt=json.dumps(menu, ensure_ascii=False))
 
 if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=DEBUG)
