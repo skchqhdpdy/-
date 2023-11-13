@@ -10,10 +10,46 @@
 </head>
 <body>
     <div class="card">
-        <div class="card-body">
-            {{ txt }}
+        <div id="md" style="text-align: center;" class="card-body">
+            Loading... {{ txt }}
         </div>
     </div>
+
+    <script>
+        const menu = {{ txt | safe }}
+        var iserror = false
+        console.log(menu)
+        const md = document.getElementById("md")
+
+        md.innerText = ""
+        const date = document.createElement("h1")
+        date.innerText = menu.date.replace(/^(\d{4})(\d{2})(\d{2})$/, '$1/$2/$3')
+        md.appendChild(date)
+        md.appendChild(document.createElement("br"))
+
+        for (let i = 0; i < menu.menu.length; i++) {
+            iserror = true
+            const m = document.createElement("h2")
+            m.innerText = menu.menu[i]
+            md.appendChild(m)
+        }
+
+        if (!iserror) {
+            // URLSearchParams를 사용하여 파싱
+            var urlParams = new URLSearchParams(location.search);
+            // 'date' 파라미터 값 가져오기
+            var dateParam = urlParams.get('date').replace(/^(\d{4})(\d{2})(\d{2})$/, '$1/$2/$3')
+            
+            const date = document.createElement("h1")
+            date.innerText = dateParam
+            md.appendChild(date)
+            md.appendChild(document.createElement("br"))
+
+            const m = document.createElement("h1")
+            m.innerText = JSON.stringify(menu.menu)
+            md.appendChild(m)
+        }
+    </script>
 </body>
 </html>
 {% endblock %}
