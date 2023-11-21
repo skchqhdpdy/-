@@ -94,6 +94,18 @@ app.secret_key = os.urandom(24) #encrypts the session cookie
 
 @app.route("/")
 def home():
+    return render_template("index.html", title="메인 페이지")
+
+@app.route("/discordbot")
+def discordbot():
+    return redirect("https://discord.com/api/oauth2/authorize?client_id=1109007342458114108&permissions=8&scope=bot")
+
+@app.route("/email")
+def email():
+    return render_template("email.html", title="Email")
+
+@app.route("/meal")
+def meal():
     #inputDate = input("오늘 기준 으로 +, - 입력 : ")
     dateNow = time.strftime('%Y%m%d', time.localtime(time.time()))
 
@@ -102,10 +114,10 @@ def home():
     if date is None or date == "":
         #date = dateNow
         log.info(f"date Default set {dateNow} & Redirect")
-        return redirect(url_for("home", date=dateNow, isjson=isjson))
+        return redirect(url_for("meal", date=dateNow, isjson=isjson))
 
     if isjson is None or isjson == "":
-        return redirect(url_for("home", date=date, isjson=0))
+        return redirect(url_for("meal", date=date, isjson=0))
     elif isjson == "1" or isjson == 1:
         isjson = 1
     else:
@@ -118,7 +130,7 @@ def home():
     elif isjson == 1:
         return Response(json.dumps(menu, indent=2, ensure_ascii=False), content_type='application/json')
     else:
-        return render_template("main.html", title="오늘의 급식", txt=json.dumps(menu, ensure_ascii=False))
+        return render_template("meal.html", title="오늘의 급식", txt=json.dumps(menu, ensure_ascii=False))
 
 if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=DEBUG)
