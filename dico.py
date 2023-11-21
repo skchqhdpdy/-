@@ -33,7 +33,7 @@ async def ping(ctx):
 
 @bot.command(aliases=["급식"])
 async def meal(ctx):
-    r = requests.get(f"http://localhost:{PORT}", headers={"User-Agent": "meal discord"})
+    r = requests.get(f"http://localhost:{PORT}/meal", headers={"User-Agent": "meal discord"})
     r = r.json()
 
     log.info(f"r = {r}")
@@ -54,7 +54,7 @@ async def meal(ctx):
             f"급식일:<t:{fulldateToUnix(LMI['last_date'])}:R> | 업데이트일:<t:{fulldateToUnix(LMI['last_update'])}:R> \n" + \
             f"{LMI['last_meal']}"
 
-    embed = discord.Embed(title='오늘의 급식', description=msg, url=f'http://localhost:{PORT}/', color=discord.Color.random())
+    embed = discord.Embed(title='오늘의 급식', description=msg, url=f'http://localhost:{PORT}/meal', color=discord.Color.random())
     embed.set_author(name=bot.user.name, url="https://discord.com/users/753682115505160393", icon_url=bot.user.avatar_url)
     embed.set_thumbnail(url=bot.user.avatar_url)
     # 사용자 정보를 가져옴
