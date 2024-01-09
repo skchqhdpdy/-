@@ -16,6 +16,7 @@
     </div>
 
     <script>
+        const noData = "{{ ND }}" == "False" ? false : {{ ND | safe }}
         const menu = {{ txt | safe }}
         var iserror = false
         console.log(menu)
@@ -48,6 +49,19 @@
             const m = document.createElement("h1")
             m.innerText = JSON.stringify(menu.menu)
             md.appendChild(m)
+        }
+
+        if (noData) {
+            md.appendChild(document.createElement("br"))
+
+            const nd = document.createElement("div")
+            const lmit = document.createElement("h1")
+            lmit.innerText = "마지막 급식 정보"
+            nd.appendChild(lmit)
+            const lm = document.createElement("h2")
+            lm.innerText = JSON.stringify(noData)
+            nd.appendChild(lm)
+            md.appendChild(nd)
         }
     </script>
 </body>
