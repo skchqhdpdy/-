@@ -5,6 +5,8 @@ import time
 import json
 import sys
 #import dico
+from last_meal_info import last_meal
+from rgx import regex
 
 #This file is responsible for running the web server and (mostly nothing else)
 from flask import Flask, render_template, session, redirect, url_for, request, send_from_directory, jsonify, Response
@@ -23,40 +25,6 @@ HOST = conf.config["server"]["host"]
 PORT = conf.config["server"]["port"]
 DEBUG = True if conf.config["server"]["debug"] == "True" else False
 apikey = conf.config["api"]["apikey"]
-
-""" def regex_old(menu):
-    #필터링 ?
-    menu += "<br/>"
-    log.debug(menu) 
-    
-    arr = []
-    txt = ""
-    for i in menu:
-        #if i != " ":
-        #log.error(i != " " or i != "<" or i != "b" or i != "r" or i != "/" or i != ">")
-        if i == "<" or i == "b" or i == "r" or i == "/" or i == ">":
-            if i == ">":
-                arr.append(txt)
-                txt = ""
-        #elif i == "(" or i == "." or i == ")" or i.isdigit():
-        #    txt += i
-        else:
-            txt += i
-    return arr """
-
-def regex(menu):
-    regexedMenu = []
-    while True:
-        if menu.find("<br/>") == -1 and menu == "":
-            return regexedMenu
-        else:
-            num = menu.find("<br/>")
-            if num != -1:
-                regexedMenu.append(menu[:num])
-                menu = menu[num + 5:]
-            else:
-                regexedMenu.append(menu)
-                menu = ""
 
 def get_menu(date):
 
@@ -125,12 +93,17 @@ def meal():
 
     menu = get_menu(date)
 
+    if menu["date"] == "" and type(menu["menu"]) is dict:
+        NoData = last_meal()
+    else:
+        NoData = False
+
     if request.headers.get("User-Agent") == "meal discord":
         return jsonify(menu)
     elif isjson == 1:
-        return Response(json.dumps(menu, indent=2, ensure_ascii=False), content_type='application/json')
+        return Response(json.dumps({"meal_info": menu, "last_meal_info": NoData}, indent=2, ensure_ascii=False), content_type='application/json')
     else:
-        return render_template("meal.html", title="오늘의 급식", txt=json.dumps(menu, ensure_ascii=False))
+        return render_template("meal.html", title="오늘의 급식", txt=json.dumps(menu, ensure_ascii=False), ND=NoData)
 
 if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=DEBUG)
