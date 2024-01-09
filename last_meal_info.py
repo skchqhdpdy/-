@@ -1,6 +1,6 @@
 from lets_common_log import logUtils as log
 import requests
-from main import regex
+from rgx import regex
 
 def last_meal():
     URL = "https://open.neis.go.kr/portal/data/sheet/searchSheetData.do?page=1"
