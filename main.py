@@ -66,7 +66,7 @@ def home():
 
 @app.route("/discordbot")
 def discordbot():
-    return redirect("https://discord.com/api/oauth2/authorize?client_id=1109007342458114108&permissions=8&scope=bot")
+    return redirect("https://discord.com/api/oauth2/authorize?client_id=1109007342458114108&permissions=8&scope=bot+applications.commands")
 
 @app.route("/email")
 def email():
